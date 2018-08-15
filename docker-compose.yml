@@ -40,4 +40,4 @@ services:
           MYSQL_PASSWORD: ${MYSQL_PASSWORD}
   #Uncomment to user docker volumes instead of mounted directory for mysql database
   #volumes:
-    #-datadb: null
+    #- datadb: null

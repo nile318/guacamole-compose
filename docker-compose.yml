@@ -1,0 +1,43 @@
+version: '3.3'
+
+services:
+
+  guacd:
+       image: guacamole/guacd
+       restart: on-failure
+
+  mysql:
+       image: mariadb
+       restart: on-failure
+       volumes:
+         - ${MYSQL_DATA_DIR}:/var/lib/mysql #mysql data directory
+         #Uncomment to user docker volumes instead of mounted directory for mysql database and remove above line
+         #- datadb:/var/lib/mysql
+         - ${SQL_SCRIPT}:/docker-entrypoint-initdb.d/ #initial schema setup initdb.sql
+       env_file:
+         - .env
+       environment:
+         MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+         MYSQL_DATABASE: ${MYSQL_DATABASE}
+         MYSQL_USER: ${MYSQL_USER}
+         MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+  guacamole:
+      depends_on:
+        - mysql
+        - guacd
+      image: guacamole/guacamole
+      ports:
+        - "8080:8080"
+      restart: on-failure
+      env_file:
+        - .env
+      environment:
+          GUACD_HOSTNAME: guacd
+          MYSQL_HOSTNAME: mysql
+          MYSQL_DATABASE: ${MYSQL_DATABASE}
+          MYSQL_USER: ${MYSQL_USER}
+          MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+  #Uncomment to user docker volumes instead of mounted directory for mysql database
+  #volumes:
+    #-datadb: null
